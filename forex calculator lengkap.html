@@ -1,0 +1,1656 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Forex All-in-One (Risk-Reward, Position Size, Margin, & P/L)</title>
+    <style>
+        :root {
+            /* Light Theme */
+            --primary: #3498db;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --info: #3498db; /* Using primary for info messages */
+            --bg: #ecf0f1;
+            --card: #ffffffcc;
+            --text: #2c3e50;
+            --shadow: rgba(0, 0, 0, .15);
+            --input-bg: rgba(0, 0, 0, .1);
+            --input-border: rgba(255, 255, 255, .25);
+        }
+
+        [data-theme="dark"] {
+            /* Dark Theme overrides */
+            --bg: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            --card: rgba(255, 255, 255, .08);
+            --text: #ecf0f1;
+            --shadow: rgba(0, 0, 0, .35);
+            --input-bg: rgba(0, 0, 0, .2);
+            --input-border: rgba(255, 255, 255, .25);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif; /* Using Inter for a modern look */
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 20px;
+            transition: background .4s, color .4s;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Align to top */
+        }
+
+        .container {
+            max-width: 1300px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 15px 0 25px;
+        }
+
+        h1 {
+            font-size: 2.4rem;
+            margin-bottom: 6px;
+            text-shadow: 0 2px 4px var(--shadow);
+        }
+
+        .subtitle {
+            font-size: 1.05rem;
+            opacity: .9;
+        }
+
+        .card {
+            background: var(--card);
+            backdrop-filter: blur(12px);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 28px;
+            box-shadow: 0 10px 25px var(--shadow);
+            border: 1px solid rgba(255, 255, 255, .15);
+        }
+
+        .card-title {
+            font-size: 1.4rem;
+            margin-bottom: 18px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+            margin-bottom: 18px;
+        }
+
+        .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: 500;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--input-border);
+            background: var(--input-bg);
+            color: inherit;
+            font-size: 1rem;
+            transition: all .3s;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, .35);
+        }
+
+        .btn {
+            padding: 11px 22px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 10px var(--shadow);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: #fff;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: #fff;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px var(--shadow);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 18px;
+        }
+
+        th,
+        td {
+            padding: 12px 10px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, .12);
+        }
+
+        th {
+            background: rgba(0, 0, 0, .25);
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, .05);
+        }
+
+        .profit {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .loss {
+            color: var(--danger);
+            font-weight: 600;
+        }
+
+        .neutral {
+            color: var(--warning);
+        }
+
+        .action-cell {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
+            justify-content: flex-start; /* Align to start */
+            align-items: center;
+        }
+
+        .action-cell .btn {
+            padding: 6px 12px; /* Smaller padding for table buttons */
+            font-size: 0.85rem; /* Smaller font size */
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 18px;
+            margin-top: 18px;
+        }
+
+        .summary-item {
+            padding: 18px;
+            background: rgba(0, 0, 0, .23);
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .summary-value {
+            font-size: 1.7rem;
+            font-weight: 700;
+            margin: 6px 0;
+            word-break: break-all;
+        }
+
+        .toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 99;
+        }
+
+        /* Custom Modal Styles */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 100; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0, 0, 0, 0.6); /* Black w/ opacity */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: var(--card);
+            margin: auto;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 15px 30px var(--shadow);
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+        }
+
+        .modal.show .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+
+        .close-button {
+            color: var(--text);
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: var(--danger);
+            text-decoration: none;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        /* Message Box Styles */
+        .message-box {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--info);
+            color: #fff;
+            padding: 12px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 101;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            text-align: center;
+        }
+
+        .message-box.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .account-summary-info {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, .1);
+        }
+        .account-summary-info p {
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .account-summary-info p span {
+            font-weight: 600;
+        }
+
+        /* Simulation Results Table */
+        #simulation-results-table {
+            margin-top: 20px;
+        }
+        #simulation-results-table th,
+        #simulation-results-table td {
+            padding: 8px 10px;
+            font-size: 0.9rem;
+        }
+        #simulation-results-table .action-cell .btn {
+            padding: 4px 8px;
+            font-size: 0.75rem;
+        }
+
+        /* Checkbox styling for simulation table */
+        .simulation-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer; /* Now clickable! */
+            vertical-align: middle;
+        }
+
+
+        @media(max-width:768px) {
+            .form-row {
+                flex-direction: column;
+                gap: 14px;
+            }
+
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .toggle {
+                top: 10px;
+                right: 10px;
+            }
+
+            .card {
+                padding: 18px;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .subtitle {
+                font-size: 0.9rem;
+            }
+
+            th,
+            td {
+                padding: 8px 6px;
+                font-size: 0.85rem;
+            }
+
+            .btn {
+                padding: 8px 15px;
+                font-size: 0.9rem;
+            }
+
+            .action-cell {
+                flex-direction: row; /* Keep row for small screens to save space */
+                gap: 5px;
+                justify-content: center; /* Center align buttons on small screens */
+            }
+            .action-cell .btn {
+                padding: 5px 10px; /* Even smaller for mobile */
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <button id="theme-toggle" class="btn btn-outline toggle">🌙/☀️</button>
+        <header>
+            <h1>Kalkulator Forex All‑in‑One</h1>
+            <p class="subtitle">Risk‑Reward • Position Size • Margin • Profit/Loss • Grafik & Export</p>
+        </header>
+        <main>
+            <div class="card">
+                <h2 class="card-title">🔧 Pengaturan Akun</h2>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="equity">Equity Akun (USD)</label>
+                        <input type="number" id="equity" value="10000" step="10">
+                    </div>
+                    <div class="form-group">
+                        <label for="leverage">Leverage (contoh: 100 untuk 1:100)</label>
+                        <input type="number" id="leverage" value="100" step="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="riskPercent">Risk % per Trade</label>
+                        <input type="number" id="riskPercent" value="2" step="0.1">
+                    </div>
+                </div>
+                <div class="account-summary-info">
+                    <p>Maksimum Dana Risiko per Trade: <span id="max-risk-amount">$0.00</span></p>
+                    <p>Sisa Dana Tersedia (Free Margin): <span id="account-free-margin">$0.00</span></p>
+                </div>
+            </div>
+            <div class="card">
+                <h2 class="card-title">➕ Tambah Posisi Baru</h2>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="pair">Pair / Simbol</label>
+                        <select id="pair">
+                            <option value="GBP/USD">GBP/USD</option>
+                            <option value="EUR/USD">EUR/USD</option>
+                            <option value="USD/JPY">USD/JPY</option>
+                            <option value="AUD/USD">AUD/USD</option>
+                            <option value="USD/CAD">USD/CAD</option>
+                            <option value="NZD/USD">NZD/USD</option>
+                            <option value="USD/CHF">USD/CHF</option>
+                            <option value="EUR/GBP">EUR/GBP</option>
+                            <option value="EUR/JPY">EUR/JPY</option>
+                            <option value="XAU/USD">XAU/USD (Gold)</option>
+                            <option value="XAG/USD">XAG/USD (Silver)</option>
+                            <option value="XTI/USD">XTI/USD (WTI Oil)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="type">Tipe Posisi</label>
+                        <select id="type">
+                            <option value="buy">Buy</option>
+                            <option value="sell">Sell</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="lot">Lot Size</label>
+                        <input type="number" id="lot" min="0.01" step="0.01" value="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label for="entry">Harga Masuk</label>
+                        <input type="number" id="entry" step="0.00001">
+                    </div>
+                    <div class="form-group">
+                        <label for="current">Harga Sekarang</label>
+                        <input type="number" id="current" step="0.00001">
+                    </div>
+                    <div class="form-group">
+                        <label for="sl">Stop Loss (Opsional)</label>
+                        <input type="number" id="sl" step="0.00001">
+                    </div>
+                    <div class="form-group">
+                        <label for="tp">Take Profit (Opsional)</label>
+                        <input type="number" id="tp" step="0.00001">
+                    </div>
+                </div>
+                <p>💡 Lot Saran: <span id="suggested-lot" class="neutral">-</span></p>
+                <button id="add-position" class="btn btn-primary">Tambah Posisi</button>
+            </div>
+
+            <div class="card">
+                <h2 class="card-title">🔄 Pembaruan Harga Terkini</h2>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="update-pair">Pilih Pair</label>
+                        <select id="update-pair">
+                            <option value="">-- Pilih Pair --</option>
+                            <option value="GBP/USD">GBP/USD</option>
+                            <option value="EUR/USD">EUR/USD</option>
+                            <option value="USD/JPY">USD/JPY</option>
+                            <option value="AUD/USD">AUD/USD</option>
+                            <option value="USD/CAD">USD/CAD</option>
+                            <option value="NZD/USD">NZD/USD</option>
+                            <option value="USD/CHF">USD/CHF</option>
+                            <option value="EUR/GBP">EUR/GBP</option>
+                            <option value="EUR/JPY">EUR/JPY</option>
+                            <option value="XAU/USD">XAU/USD (Gold)</option>
+                            <option value="XAG/USD">XAG/USD (Silver)</option>
+                            <option value="XTI/USD">XTI/USD (WTI Oil)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="update-current-price">Harga Sekarang Baru</label>
+                        <input type="number" id="update-current-price" step="0.00001">
+                    </div>
+                </div>
+                <button id="apply-current-price" class="btn btn-primary">Terapkan Harga ke Posisi Aktif</button>
+            </div>
+
+            <div class="card">
+                <h2 class="card-title">🔬 Simulasi Order Tertunda</h2>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="sim-pair">Pair / Simbol</label>
+                        <select id="sim-pair">
+                            <option value="GBP/USD">GBP/USD</option>
+                            <option value="EUR/USD">EUR/USD</option>
+                            <option value="USD/JPY">USD/JPY</option>
+                            <option value="AUD/USD">AUD/USD</option>
+                            <option value="USD/CAD">USD/CAD</option>
+                            <option value="NZD/USD">NZD/USD</option>
+                            <option value="USD/CHF">USD/CHF</option>
+                            <option value="EUR/GBP">EUR/GBP</option>
+                            <option value="EUR/JPY">EUR/JPY</option>
+                            <option value="XAU/USD">XAU/USD (Gold)</option>
+                            <option value="XAG/USD">XAG/USD (Silver)</option>
+                            <option value="XTI/USD">XTI/USD (WTI Oil)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="sim-entry">Harga Sekarang / Referensi</label>
+                        <input type="number" id="sim-entry" step="0.00001">
+                    </div>
+                    <div class="form-group">
+                        <label for="sim-pip-movement">Pergerakan Pips (dari Harga Referensi)</label>
+                        <input type="number" id="sim-pip-movement" value="10" step="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="sim-order-type">Tipe Order Tertunda</label>
+                        <select id="sim-order-type">
+                            <option value="buy_stop">Buy Stop</option>
+                            <option value="buy_limit">Buy Limit</option>
+                            <option value="sell_stop">Sell Stop</option>
+                            <option value="sell_limit">Sell Limit</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="sim-lot">Lot Size (Opsional)</label>
+                        <input type="number" id="sim-lot" min="0.01" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label for="sim-sl-pips">SL Pips (Opsional)</label>
+                        <input type="number" id="sim-sl-pips" step="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="sim-tp-pips">TP Pips (Opsional)</label>
+                        <input type="number" id="sim-tp-pips" step="1">
+                    </div>
+                </div>
+                <p>💡 Harga Order Tertunda: <span id="sim-order-price" class="neutral">-</span></p>
+                <p>💡 Stop Loss (Harga): <span id="sim-sl-price" class="neutral">-</span></p>
+                <p>💡 Take Profit (Harga): <span id="sim-tp-price" class="neutral">-</span></p>
+                <p>💡 Risiko ($): <span id="sim-risk-usd" class="loss">-</span></p>
+                <p>💡 Reward ($): <span id="sim-reward-usd" class="profit">-</span></p>
+                <p>💡 R/R Ratio: <span id="sim-rr-ratio" class="neutral">-</span></p>
+                <button id="calculate-simulation" class="btn btn-primary">Hitung Simulasi</button>
+                <button id="add-simulated-position" class="btn btn-success" style="display:none;">Tambahkan ke Posisi Aktif</button>
+
+                <div style="overflow-x:auto; margin-top: 20px;">
+                    <table id="simulation-results-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Pair</th>
+                                <th>Tipe Order</th>
+                                <th>Harga Order</th>
+                                <th>SL (Harga)</th>
+                                <th>TP (Harga)</th>
+                                <th>Risk ($)</th>
+                                <th>Reward ($)</th>
+                                <th>R/R</th>
+                                <th>Sudah Dibuka?</th> <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="simulations-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 class="card-title">📊 Posisi Aktif</h2>
+                <div style="overflow-x:auto;">
+                    <table id="positions-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Pair</th>
+                                <th>Tipe</th>
+                                <th>Lot</th>
+                                <th>Entry</th>
+                                <th>Harga Sekarang</th>
+                                <th>SL</th>
+                                <th>TP</th>
+                                <th>Risk ($)</th>
+                                <th>Reward ($)</th>
+                                <th>R/R</th>
+                                <th>Margin ($)</th>
+                                <th>P/L</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="positions-body"></tbody>
+                    </table>
+                </div>
+                <button id="export-csv" class="btn btn-outline" style="margin-top:15px;">⬇️ Export CSV</button>
+            </div>
+
+            <div class="card">
+                <h2 class="card-title">📈 Ringkasan Portofolio</h2>
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <h3>Total Profit</h3>
+                        <div class="summary-value profit" id="total-profit">$0.00</div>
+                    </div>
+                    <div class="summary-item">
+                        <h3>Total Loss</h3>
+                        <div class="summary-value loss" id="total-loss">$0.00</div>
+                    </div>
+                    <div class="summary-item">
+                        <h3>Rata-rata R/R</h3>
+                        <div class="summary-value neutral" id="avg-rr">0.00</div>
+                    </div>
+                    <div class="summary-item">
+                        <h3>Total Margin</h3>
+                        <div class="summary-value neutral" id="total-margin">$0.00</div>
+                    </div>
+                    <div class="summary-item">
+                        <h3>Free Margin</h3>
+                        <div class="summary-value neutral" id="free-margin">$0.00</div>
+                    </div>
+                    <div class="summary-item">
+                        <h3>Jumlah Posisi</h3>
+                        <div class="summary-value neutral" id="position-count">0</div>
+                    </div>
+                </div>
+                <canvas id="riskChart" style="margin-top:28px;max-height:420px;"></canvas>
+            </div>
+        </main>
+    </div>
+
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Posisi</h2>
+                <button class="close-button" id="close-edit-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="edit-position-index">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit-pair">Pair / Simbol</label>
+                        <select id="edit-pair">
+                            <option value="GBP/USD">GBP/USD</option>
+                            <option value="EUR/USD">EUR/USD</option>
+                            <option value="USD/JPY">USD/JPY</option>
+                            <option value="AUD/USD">AUD/USD</option>
+                            <option value="USD/CAD">USD/CAD</option>
+                            <option value="NZD/USD">NZD/USD</option>
+                            <option value="USD/CHF">USD/CHF</option>
+                            <option value="EUR/GBP">EUR/GBP</option>
+                            <option value="EUR/JPY">EUR/JPY</option>
+                            <option value="XAU/USD">XAU/USD (Gold)</option>
+                            <option value="XAG/USD">XAG/USD (Silver)</option>
+                            <option value="XTI/USD">XTI/USD (WTI Oil)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-type">Tipe Posisi</label>
+                        <select id="edit-type">
+                            <option value="buy">Buy</option>
+                            <option value="sell">Sell</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-lot">Lot Size</label>
+                        <input type="number" id="edit-lot" min="0.01" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-entry">Harga Masuk</label>
+                        <input type="number" id="edit-entry" step="0.00001">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-current">Harga Sekarang</label>
+                        <input type="number" id="edit-current" step="0.00001">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-sl">Stop Loss (Opsional)</label>
+                        <input type="number" id="edit-sl" step="0.00001">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-tp">Take Profit (Opsional)</label>
+                        <input type="number" id="edit-tp" step="0.00001">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="cancel-edit">Batal</button>
+                <button class="btn btn-primary" id="save-edit">Simpan Perubahan</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="message-box" class="message-box"></div>
+
+    <script>
+        /* ===== Konstanta Ukuran Kontrak, Nilai Pip, dan Tempat Desimal ===== */
+        const CONTRACT_SIZE_MAP = {
+            'DEFAULT': 100000,
+            'USD/JPY': 100000,
+            'EUR/JPY': 100000,
+            'XAU/USD': 100,
+            'XAG/USD': 5000,
+            'XTI/USD': 1000
+        };
+
+        const PIP_VALUE_MAP = {
+            'DEFAULT': 0.0001, // For most 4-decimal pairs
+            'USD/JPY': 0.01,   // For JPY pairs (2 decimals)
+            'EUR/JPY': 0.01,
+            'XAU/USD': 0.01,   // Gold moves in dollars and cents
+            'XAG/USD': 0.001,  // Silver often 3 decimals
+            'XTI/USD': 0.01    // Oil often 2 decimals
+        };
+
+        const DECIMAL_PLACES_MAP = {
+            'DEFAULT': 5, // For most 5-decimal pairs (e.g., EUR/USD)
+            'USD/JPY': 3, // For JPY pairs (3 decimals)
+            'EUR/JPY': 3,
+            'XAU/USD': 2, // Gold typically 2 decimals
+            'XAG/USD': 3, // Silver typically 3 decimals
+            'XTI/USD': 2  // Oil typically 2 decimals
+        };
+
+        function getContractSize(pair) { return CONTRACT_SIZE_MAP[pair] || CONTRACT_SIZE_MAP['DEFAULT']; }
+        function getPipValue(pair) { return PIP_VALUE_MAP[pair] || PIP_VALUE_MAP['DEFAULT']; }
+        function getDecimalPlaces(pair) { return DECIMAL_PLACES_MAP[pair] || DECIMAL_PLACES_MAP['DEFAULT']; }
+
+        /* ===== GLOBAL STATE ===== */
+        let positions = []; // Each item: {pair, type, lot, entry, current, sl, tp}
+        // Added isOpened flag to simulation objects
+        let simulations = []; // Each item: {pair, orderType, orderPrice, slPrice, tpPrice, riskUSD, rewardUSD, rr, lot, isOpened: boolean}
+        let chartInstance = null;
+
+        /* ===== DOM Element Cache ===== */
+        const positionsBody = document.getElementById('positions-body');
+        const totalProfitEl = document.getElementById('total-profit');
+        const totalLossEl = document.getElementById('total-loss');
+        const avgRREl = document.getElementById('avg-rr');
+        const totalMarginEl = document.getElementById('total-margin');
+        const freeMarginEl = document.getElementById('free-margin');
+        const positionCountEl = document.getElementById('position-count');
+        const suggestedLotEl = document.getElementById('suggested-lot');
+
+        const maxRiskAmountEl = document.getElementById('max-risk-amount');
+        const accountFreeMarginEl = document.getElementById('account-free-margin');
+
+        const editModal = document.getElementById('edit-modal');
+        const closeEditModalBtn = document.getElementById('close-edit-modal');
+        const cancelEditBtn = document.getElementById('cancel-edit');
+        const saveEditBtn = document.getElementById('save-edit');
+        const editPositionIndexInput = document.getElementById('edit-position-index');
+
+        const updatePairSelect = document.getElementById('update-pair');
+        const updateCurrentPriceInput = document.getElementById('update-current-price');
+        const applyCurrentPriceBtn = document.getElementById('apply-current-price');
+
+        // Simulation DOM elements
+        const simPairSelect = document.getElementById('sim-pair');
+        const simEntryInput = document.getElementById('sim-entry');
+        const simPipMovementInput = document.getElementById('sim-pip-movement');
+        const simOrderTypeSelect = document.getElementById('sim-order-type');
+        const simLotInput = document.getElementById('sim-lot');
+        const simSlPipsInput = document.getElementById('sim-sl-pips');
+        const simTpPipsInput = document.getElementById('sim-tp-pips');
+
+        const simOrderPriceEl = document.getElementById('sim-order-price');
+        const simSlPriceEl = document.getElementById('sim-sl-price');
+        const simTpPriceEl = document.getElementById('sim-tp-price');
+        const simRiskUsdEl = document.getElementById('sim-risk-usd');
+        const simRewardUsdEl = document.getElementById('sim-reward-usd');
+        const simRrRatioEl = document.getElementById('sim-rr-ratio');
+        const calculateSimulationBtn = document.getElementById('calculate-simulation');
+        const addSimulatedPositionBtn = document.getElementById('add-simulated-position');
+        const simulationsBody = document.getElementById('simulations-body');
+
+
+        const messageBox = document.getElementById('message-box');
+
+        /* ===== Account Settings ===== */
+        function getAccountSettings() {
+            return {
+                equity: parseFloat(document.getElementById('equity').value) || 0,
+                leverage: parseFloat(document.getElementById('leverage').value) || 1,
+                riskPercent: parseFloat(document.getElementById('riskPercent').value) || 0
+            };
+        }
+
+        /* ===== Utility Functions ===== */
+        function formatCurrency(n) {
+            if (isNaN(n) || n === null) return 'N/A';
+            return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n);
+        }
+
+        function showMessage(message, type = 'info', duration = 3000) {
+            messageBox.textContent = message;
+            messageBox.className = `message-box show`; // Reset classes
+            messageBox.style.backgroundColor = `var(--${type})`;
+
+            setTimeout(() => {
+                messageBox.classList.remove('show');
+            }, duration);
+        }
+
+        /* ===== Calculations ===== */
+        /**
+         * Calculates metrics for a given trade scenario (can be active position or simulated).
+         * @param {object} trade - Object containing trade details (pair, type, lot, entry, current, sl, tp).
+         * @param {object} settings - Account settings object.
+         * @returns {object} Object containing riskUSD, rewardUSD, rr, pl, marginUSD.
+         */
+        function calculateTradeMetrics(trade, settings) {
+            const cs = getContractSize(trade.pair);
+            const pipValue = getPipValue(trade.pair);
+
+            let riskUSD = 0;
+            let rewardUSD = 0;
+            let rr = 0;
+
+            // Calculate Risk and Reward only if SL and TP are defined
+            if (trade.sl !== null && trade.tp !== null) {
+                let riskPips, rewardPips;
+                if (trade.type === 'buy') {
+                    riskPips = (trade.entry - trade.sl) / pipValue;
+                    rewardPips = (trade.tp - trade.entry) / pipValue;
+                } else { // sell
+                    riskPips = (trade.sl - trade.entry) / pipValue;
+                    rewardPips = (trade.entry - trade.tp) / pipValue;
+                }
+                riskUSD = Math.abs(riskPips * trade.lot * pipValue * cs);
+                rewardUSD = rewardPips * trade.lot * pipValue * cs;
+                rr = riskUSD === 0 ? 0 : (rewardUSD / riskUSD);
+            }
+
+            // Calculate Profit/Loss in USD (only for active positions, not simulations)
+            const pl = (trade.current !== undefined && trade.current !== null) ?
+                       (trade.type === 'buy' ? trade.current - trade.entry : trade.entry - trade.current) * trade.lot * cs :
+                       0; // Or N/A if current price is not applicable
+
+            // Calculate Margin in USD
+            const marginUSD = (trade.lot * cs * trade.entry) / settings.leverage;
+
+            return {
+                riskUSD: riskUSD,
+                rewardUSD: rewardUSD,
+                rr: rr,
+                pl: pl,
+                marginUSD: marginUSD
+            };
+        }
+
+        /**
+         * Calculates summary metrics for all positions.
+         * @param {Array<object>} allPositions - Array of all positions.
+         * @param {object} settings - Account settings object.
+         * @returns {object} Object containing totalProfit, totalLoss, avgRR, totalMargin, freeMargin.
+         */
+        function calculateSummaryMetrics(allPositions, settings) {
+            let totalProfit = 0;
+            let totalLoss = 0;
+            let totalRR = 0;
+            let positionsWithRR = 0;
+            let totalMargin = 0;
+
+            allPositions.forEach(pos => {
+                const metrics = calculateTradeMetrics(pos, settings);
+                if (pos.sl !== null && pos.tp !== null) { // Only count positions with defined R/R for average
+                    totalRR += metrics.rr;
+                    positionsWithRR++;
+                }
+                totalProfit += (metrics.pl >= 0 ? metrics.pl : 0);
+                totalLoss += (metrics.pl < 0 ? Math.abs(metrics.pl) : 0);
+                totalMargin += metrics.marginUSD;
+            });
+
+            const avgRR = positionsWithRR ? (totalRR / positionsWithRR) : 0;
+            const freeMargin = settings.equity - totalMargin;
+
+            return { totalProfit, totalLoss, avgRR, totalMargin, freeMargin };
+        }
+
+        /* ===== Render Functions ===== */
+        function renderAll() {
+            const settings = getAccountSettings();
+            renderAccountSettingsInfo(settings);
+            renderPositionsTable(settings);
+            renderAccountSummary(settings);
+            renderSimulationsTable(); // Render simulation table
+            updateChart();
+        }
+
+        function renderAccountSettingsInfo(settings) {
+            const maxRiskAmount = (settings.equity * settings.riskPercent / 100);
+            maxRiskAmountEl.textContent = formatCurrency(maxRiskAmount);
+
+            const summary = calculateSummaryMetrics(positions, settings);
+            accountFreeMarginEl.textContent = formatCurrency(summary.freeMargin);
+        }
+
+        function renderPositionsTable(settings) {
+            positionsBody.innerHTML = '';
+            positions.forEach((pos, idx) => {
+                const metrics = calculateTradeMetrics(pos, settings);
+                const decimalPlaces = getDecimalPlaces(pos.pair);
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${idx + 1}</td>
+                    <td>${pos.pair}</td>
+                    <td><span class="${pos.type === 'buy' ? 'profit' : 'loss'}">${pos.type.toUpperCase()}</span></td>
+                    <td>${pos.lot.toFixed(2)}</td>
+                    <td>${pos.entry.toFixed(decimalPlaces)}</td>
+                    <td>${pos.current.toFixed(decimalPlaces)}</td>
+                    <td>${pos.sl !== null ? pos.sl.toFixed(decimalPlaces) : 'N/A'}</td>
+                    <td>${pos.tp !== null ? pos.tp.toFixed(decimalPlaces) : 'N/A'}</td>
+                    <td class="loss">${pos.sl !== null && pos.tp !== null ? formatCurrency(metrics.riskUSD) : 'N/A'}</td>
+                    <td class="profit">${pos.sl !== null && pos.tp !== null ? formatCurrency(metrics.rewardUSD) : 'N/A'}</td>
+                    <td class="${metrics.rr >= 1 ? 'profit' : 'loss'}">${pos.sl !== null && pos.tp !== null ? metrics.rr.toFixed(2) : 'N/A'}</td>
+                    <td>${formatCurrency(metrics.marginUSD)}</td>
+                    <td class="${metrics.pl >= 0 ? 'profit' : 'loss'}">${formatCurrency(metrics.pl)}</td>
+                    <td class="action-cell">
+                        <button class="btn btn-warning edit-position-btn" data-index="${idx}">Edit</button>
+                        <button class="btn btn-danger delete-position-btn" data-index="${idx}">Hapus</button>
+                    </td>
+                `;
+                positionsBody.appendChild(tr);
+            });
+
+            // Attach event listeners for edit and delete buttons after rendering
+            positionsBody.querySelectorAll('.edit-position-btn').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    const index = parseInt(event.target.dataset.index);
+                    openEditModal(index);
+                });
+            });
+
+            positionsBody.querySelectorAll('.delete-position-btn').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    const index = parseInt(event.target.dataset.index);
+                    confirmDeletePosition(index);
+                });
+            });
+        }
+
+        function renderAccountSummary(settings) {
+            const summary = calculateSummaryMetrics(positions, settings);
+            totalProfitEl.textContent = formatCurrency(summary.totalProfit);
+            totalLossEl.textContent = formatCurrency(summary.totalLoss);
+            avgRREl.textContent = summary.avgRR.toFixed(2);
+            totalMarginEl.textContent = formatCurrency(summary.totalMargin);
+            freeMarginEl.textContent = formatCurrency(summary.freeMargin);
+            positionCountEl.textContent = positions.length;
+        }
+
+        function renderSimulationsTable() {
+            simulationsBody.innerHTML = '';
+            const settings = getAccountSettings(); // Need settings for risk/reward calculation
+
+            simulations.forEach((sim, idx) => {
+                const decimalPlaces = getDecimalPlaces(sim.pair);
+                const metrics = calculateTradeMetrics({
+                    pair: sim.pair,
+                    type: sim.orderType.includes('buy') ? 'buy' : 'sell',
+                    lot: sim.lot || 0, // Use 0 if lot is not provided for calculation
+                    entry: sim.orderPrice,
+                    current: sim.orderPrice, // For simulation, current is the order price
+                    sl: sim.slPrice,
+                    tp: sim.tpPrice
+                }, settings);
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${idx + 1}</td>
+                    <td>${sim.pair}</td>
+                    <td>${sim.orderType.replace('_', ' ').toUpperCase()}</td>
+                    <td>${sim.orderPrice.toFixed(decimalPlaces)}</td>
+                    <td>${sim.slPrice !== null ? sim.slPrice.toFixed(decimalPlaces) : 'N/A'}</td>
+                    <td>${sim.tpPrice !== null ? sim.tpPrice.toFixed(decimalPlaces) : 'N/A'}</td>
+                    <td class="loss">${sim.slPrice !== null && sim.tpPrice !== null ? formatCurrency(metrics.riskUSD) : 'N/A'}</td>
+                    <td class="profit">${sim.slPrice !== null && sim.tpPrice !== null ? formatCurrency(metrics.rewardUSD) : 'N/A'}</td>
+                    <td class="${metrics.rr >= 1 ? 'profit' : 'loss'}">${sim.slPrice !== null && sim.tpPrice !== null ? metrics.rr.toFixed(2) : 'N/A'}</td>
+                    <td><input type="checkbox" class="simulation-checkbox" data-index="${idx}" ${sim.isOpened ? 'checked' : ''}></td>
+                    <td class="action-cell">
+                        <button class="btn btn-success open-sim-order-btn" data-index="${idx}" ${sim.isOpened ? 'disabled' : ''}>Buka Order</button>
+                        <button class="btn btn-danger delete-sim-btn" data-index="${idx}">Hapus</button>
+                    </td>
+                `;
+                simulationsBody.appendChild(tr);
+            });
+
+            // Attach event listeners for simulation table buttons and checkboxes
+            simulationsBody.querySelectorAll('.open-sim-order-btn').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    const index = parseInt(event.target.dataset.index);
+                    addSimulatedToPositions(index);
+                });
+            });
+
+            simulationsBody.querySelectorAll('.delete-sim-btn').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    const index = parseInt(event.target.dataset.index);
+                    deleteSimulation(index);
+                });
+            });
+
+            simulationsBody.querySelectorAll('.simulation-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', (event) => {
+                    const index = parseInt(event.target.dataset.index);
+                    toggleSimulationOpened(index, event.target.checked);
+                });
+            });
+        }
+
+        function updateChart() {
+            if (chartInstance) { chartInstance.destroy(); }
+
+            const labels = [];
+            const riskData = [];
+            const rewardData = [];
+            const settings = getAccountSettings();
+
+            positions.forEach((pos, idx) => {
+                const metrics = calculateTradeMetrics(pos, settings);
+                labels.push(`${pos.pair} #${idx + 1}`);
+                riskData.push(metrics.riskUSD);
+                rewardData.push(metrics.rewardUSD);
+            });
+
+            const ctx = document.getElementById('riskChart').getContext('2d');
+            chartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Risiko ($)',
+                            data: riskData,
+                            backgroundColor: 'rgba(231, 76, 60, 0.7)', // danger color
+                            borderColor: 'rgba(231, 76, 60, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Reward ($)',
+                            data: rewardData,
+                            backgroundColor: 'rgba(46, 204, 113, 0.7)', // success color
+                            borderColor: 'rgba(46, 204, 113, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            stacked: true,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'var(--text)'
+                            }
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'var(--text)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: 'var(--text)'
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += formatCurrency(context.parsed.y);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        /* ===== CRUD Operations (Positions) ===== */
+        function addPosition() {
+            const pair = document.getElementById('pair').value;
+            const type = document.getElementById('type').value;
+            const lot = parseFloat(document.getElementById('lot').value);
+            const entry = parseFloat(document.getElementById('entry').value);
+            const current = parseFloat(document.getElementById('current').value);
+            const sl = parseFloat(document.getElementById('sl').value) || null;
+            const tp = parseFloat(document.getElementById('tp').value) || null;
+
+            if (!pair || isNaN(lot) || lot <= 0 || isNaN(entry) || entry <= 0 || isNaN(current) || current <= 0) {
+                showMessage('Mohon isi Pair, Lot Size, Harga Masuk, dan Harga Sekarang dengan benar dan pastikan nilainya positif!', 'danger');
+                return;
+            }
+
+            if (sl !== null && tp !== null) {
+                if (type === 'buy') {
+                    if (sl >= entry) {
+                        showMessage('Untuk posisi BUY, Stop Loss harus di bawah Harga Masuk.', 'danger');
+                        return;
+                    }
+                    if (tp <= entry) {
+                        showMessage('Untuk posisi BUY, Take Profit harus di atas Harga Masuk.', 'danger');
+                        return;
+                    }
+                } else { // sell
+                    if (sl <= entry) {
+                        showMessage('Untuk posisi SELL, Stop Loss harus di atas Harga Masuk.', 'danger');
+                        return;
+                    }
+                    if (tp >= entry) {
+                        showMessage('Untuk posisi SELL, Take Profit harus di bawah Harga Masuk.', 'danger');
+                        return;
+                    }
+                }
+            }
+
+
+            positions.push({ pair, type, lot, entry, current, sl, tp });
+            clearAddForm();
+            renderAll();
+            showMessage('Posisi berhasil ditambahkan!', 'success');
+        }
+
+        function confirmDeletePosition(index) {
+            if (confirm('Apakah Anda yakin ingin menghapus posisi ini?')) {
+                deletePosition(index);
+            }
+        }
+
+        function deletePosition(index) {
+            positions.splice(index, 1);
+            renderAll();
+            showMessage('Posisi berhasil dihapus!', 'warning');
+        }
+
+        function openEditModal(index) {
+            const position = positions[index];
+            if (!position) {
+                showMessage('Posisi tidak ditemukan untuk diedit.', 'danger');
+                return;
+            }
+
+            editPositionIndexInput.value = index;
+            document.getElementById('edit-pair').value = position.pair;
+            document.getElementById('edit-type').value = position.type;
+            document.getElementById('edit-lot').value = position.lot;
+            document.getElementById('edit-entry').value = position.entry;
+            document.getElementById('edit-current').value = position.current;
+            document.getElementById('edit-sl').value = position.sl !== null ? position.sl : '';
+            document.getElementById('edit-tp').value = position.tp !== null ? position.tp : '';
+
+            editModal.classList.add('show');
+        }
+
+        function saveEditedPosition() {
+            const index = parseInt(editPositionIndexInput.value);
+            if (isNaN(index) || index < 0 || index >= positions.length) {
+                showMessage('Indeks posisi tidak valid.', 'danger');
+                return;
+            }
+
+            const pair = document.getElementById('edit-pair').value;
+            const type = document.getElementById('edit-type').value;
+            const lot = parseFloat(document.getElementById('edit-lot').value);
+            const entry = parseFloat(document.getElementById('edit-entry').value);
+            const current = parseFloat(document.getElementById('edit-current').value);
+            const sl = parseFloat(document.getElementById('edit-sl').value) || null;
+            const tp = parseFloat(document.getElementById('edit-tp').value) || null;
+
+            if (!pair || isNaN(lot) || lot <= 0 || isNaN(entry) || entry <= 0 || isNaN(current) || current <= 0) {
+                showMessage('Mohon isi Pair, Lot Size, Harga Masuk, dan Harga Sekarang dengan benar dan pastikan nilainya positif!', 'danger');
+                return;
+            }
+
+            if (sl !== null && tp !== null) {
+                if (type === 'buy') {
+                    if (sl >= entry) {
+                        showMessage('Untuk posisi BUY, Stop Loss harus di bawah Harga Masuk.', 'danger');
+                        return;
+                    }
+                    if (tp <= entry) {
+                        showMessage('Untuk posisi BUY, Take Profit harus di atas Harga Masuk.', 'danger');
+                        return;
+                    }
+                } else { // sell
+                    if (sl <= entry) {
+                        showMessage('Untuk posisi SELL, Stop Loss harus di atas Harga Masuk.', 'danger');
+                        return;
+                    }
+                    if (tp >= entry) {
+                        showMessage('Untuk posisi SELL, Take Profit harus di bawah Harga Masuk.', 'danger');
+                        return;
+                    }
+                }
+            }
+
+            positions[index] = { pair, type, lot, entry, current, sl, tp };
+            editModal.classList.remove('show');
+            renderAll();
+            showMessage('Posisi berhasil diperbarui!', 'success');
+        }
+
+        function clearAddForm() {
+            document.getElementById('lot').value = '0.1';
+            document.getElementById('entry').value = '';
+            document.getElementById('current').value = '';
+            document.getElementById('sl').value = '';
+            document.getElementById('tp').value = '';
+            suggestedLotEl.textContent = '-';
+            suggestedLotEl.className = 'neutral';
+        }
+
+        /* ===== Suggested Lot ===== */
+        function updateSuggestedLot() {
+            const settings = getAccountSettings();
+            const entry = parseFloat(document.getElementById('entry').value);
+            const sl = parseFloat(document.getElementById('sl').value); // This can now be NaN if empty
+            const pair = document.getElementById('pair').value;
+
+            if (isNaN(entry) || isNaN(sl) || entry <= 0 || sl <= 0 || settings.equity <= 0 || settings.riskPercent <= 0) {
+                suggestedLotEl.textContent = '-';
+                suggestedLotEl.className = 'neutral';
+                return;
+            }
+
+            const pipValue = getPipValue(pair);
+            const riskPips = Math.abs((entry - sl) / pipValue);
+
+            if (riskPips === 0) {
+                suggestedLotEl.textContent = 'SL tidak boleh sama dengan Entry';
+                suggestedLotEl.className = 'loss';
+                return;
+            }
+
+            const cs = getContractSize(pair);
+            const riskUSD = (settings.equity * settings.riskPercent / 100);
+            const lot = riskUSD / (riskPips * pipValue * cs);
+
+            if (lot > 0) {
+                suggestedLotEl.textContent = lot.toFixed(3);
+                suggestedLotEl.className = 'profit';
+            } else {
+                suggestedLotEl.textContent = '-';
+                suggestedLotEl.className = 'neutral';
+            }
+        }
+
+        /* ===== Global Current Price Update ===== */
+        function updateAllPositionsCurrentPrice() {
+            const selectedPair = updatePairSelect.value;
+            const newCurrentPrice = parseFloat(updateCurrentPriceInput.value);
+
+            if (!selectedPair) {
+                showMessage('Mohon pilih Pair yang ingin diupdate harganya.', 'danger');
+                return;
+            }
+            if (isNaN(newCurrentPrice) || newCurrentPrice <= 0) {
+                showMessage('Mohon masukkan Harga Sekarang yang valid dan positif.', 'danger');
+                return;
+            }
+
+            let updatedCount = 0;
+            positions.forEach(pos => {
+                if (pos.pair === selectedPair) {
+                    pos.current = newCurrentPrice;
+                    updatedCount++;
+                }
+            });
+
+            if (updatedCount > 0) {
+                renderAll();
+                showMessage(`${updatedCount} posisi untuk ${selectedPair} berhasil diperbarui harganya!`, 'success');
+            } else {
+                showMessage(`Tidak ada posisi aktif untuk ${selectedPair} yang perlu diperbarui.`, 'info');
+            }
+        }
+
+        /* ===== Simulation Logic ===== */
+        function calculateSimulation() {
+            const pair = simPairSelect.value;
+            const entryPrice = parseFloat(simEntryInput.value);
+            const pipMovement = parseFloat(simPipMovementInput.value);
+            const orderType = simOrderTypeSelect.value;
+            const lot = parseFloat(simLotInput.value) || 0; // Optional
+            const slPips = parseFloat(simSlPipsInput.value) || null; // Optional
+            const tpPips = parseFloat(simTpPipsInput.value) || null; // Optional
+
+            if (!pair || isNaN(entryPrice) || entryPrice <= 0 || isNaN(pipMovement) || pipMovement < 0) {
+                showMessage('Mohon isi Pair, Harga Referensi, dan Pergerakan Pips dengan benar.', 'danger');
+                return;
+            }
+
+            const pipValue = getPipValue(pair);
+            const decimalPlaces = getDecimalPlaces(pair);
+            let orderPrice;
+            let tradeType; // 'buy' or 'sell' for metrics calculation
+
+            // Determine order price and trade type based on orderType
+            switch (orderType) {
+                case 'buy_stop':
+                    orderPrice = entryPrice + (pipMovement * pipValue);
+                    tradeType = 'buy';
+                    break;
+                case 'buy_limit':
+                    orderPrice = entryPrice - (pipMovement * pipValue);
+                    tradeType = 'buy';
+                    break;
+                case 'sell_stop':
+                    orderPrice = entryPrice - (pipMovement * pipValue);
+                    tradeType = 'sell';
+                    break;
+                case 'sell_limit':
+                    orderPrice = entryPrice + (pipMovement * pipValue);
+                    tradeType = 'sell';
+                    break;
+                default:
+                    showMessage('Tipe Order Tertunda tidak valid.', 'danger');
+                    return;
+            }
+
+            let slPrice = null;
+            let tpPrice = null;
+
+            // Calculate SL/TP prices if pips are provided
+            if (slPips !== null) {
+                if (tradeType === 'buy') {
+                    slPrice = orderPrice - (slPips * pipValue);
+                } else { // sell
+                    slPrice = orderPrice + (slPips * pipValue);
+                }
+            }
+            if (tpPips !== null) {
+                if (tradeType === 'buy') {
+                    tpPrice = orderPrice + (tpPips * pipValue);
+                } else { // sell
+                    tpPrice = orderPrice - (tpPips * pipValue);
+                }
+            }
+
+            // Perform validation for SL/TP prices if both are provided
+            if (slPrice !== null && tpPrice !== null) {
+                if (tradeType === 'buy') {
+                    if (slPrice >= orderPrice) {
+                        showMessage('Untuk Buy Order, SL harus di bawah Harga Order.', 'danger');
+                        return;
+                    }
+                    if (tpPrice <= orderPrice) {
+                        showMessage('Untuk Buy Order, TP harus di atas Harga Order.', 'danger');
+                        return;
+                    }
+                } else { // sell
+                    if (slPrice <= orderPrice) {
+                        showMessage('Untuk Sell Order, SL harus di atas Harga Order.', 'danger');
+                        return;
+                    }
+                    if (tpPrice >= orderPrice) {
+                        showMessage('Untuk Sell Order, TP harus di bawah Harga Order.', 'danger');
+                        return;
+                    }
+                }
+            }
+
+
+            // Calculate metrics for display
+            const settings = getAccountSettings();
+            const simulatedTrade = {
+                pair: pair,
+                type: tradeType,
+                lot: lot,
+                entry: orderPrice,
+                current: orderPrice, // For simulation, current is the order price
+                sl: slPrice,
+                tp: tpPrice
+            };
+            const metrics = calculateTradeMetrics(simulatedTrade, settings);
+
+            // Display results
+            simOrderPriceEl.textContent = orderPrice.toFixed(decimalPlaces);
+            simSlPriceEl.textContent = slPrice !== null ? slPrice.toFixed(decimalPlaces) : 'N/A';
+            simTpPriceEl.textContent = tpPrice !== null ? tpPrice.toFixed(decimalPlaces) : 'N/A';
+            simRiskUsdEl.textContent = formatCurrency(metrics.riskUSD);
+            simRewardUsdEl.textContent = formatCurrency(metrics.rewardUSD);
+            simRrRatioEl.textContent = metrics.rr.toFixed(2);
+
+            // Store simulation result with isOpened flag
+            simulations.push({
+                pair: pair,
+                orderType: orderType,
+                orderPrice: orderPrice,
+                slPrice: slPrice,
+                tpPrice: tpPrice,
+                riskUSD: metrics.riskUSD,
+                rewardUSD: metrics.rewardUSD,
+                rr: metrics.rr,
+                lot: lot, // Store lot for adding to positions
+                isOpened: false // New flag: default to false
+            });
+
+            renderSimulationsTable();
+            // addSimulatedPositionBtn.style.display = 'inline-flex'; // This button is now handled per row in the table
+            showMessage('Simulasi berhasil dihitung!', 'success');
+        }
+
+        function addSimulatedToPositions(index) {
+            const sim = simulations[index];
+            if (!sim) {
+                showMessage('Simulasi tidak ditemukan.', 'danger');
+                return;
+            }
+
+            // Determine the 'type' for active position based on orderType
+            let typeForActivePosition;
+            if (sim.orderType.includes('buy')) {
+                typeForActivePosition = 'buy';
+            } else if (sim.orderType.includes('sell')) {
+                typeForActivePosition = 'sell';
+            } else {
+                showMessage('Tipe order simulasi tidak valid.', 'danger');
+                return;
+            }
+
+            // Check if lot is provided for adding to active positions
+            if (sim.lot === null || sim.lot <= 0) {
+                showMessage('Lot Size harus diisi dan lebih dari 0 untuk menambahkan ke Posisi Aktif.', 'danger');
+                return;
+            }
+
+            positions.push({
+                pair: sim.pair,
+                type: typeForActivePosition,
+                lot: sim.lot,
+                entry: sim.orderPrice,
+                current: sim.orderPrice, // Initial current price is the order price
+                sl: sim.slPrice,
+                tp: sim.tpPrice
+            });
+
+            // Mark simulation as opened
+            simulations[index].isOpened = true;
+
+            renderAll(); // Re-render everything to update both tables and summary
+            showMessage('Posisi simulasi berhasil ditambahkan ke Posisi Aktif!', 'success');
+        }
+
+        function deleteSimulation(index) {
+            simulations.splice(index, 1);
+            renderSimulationsTable();
+            showMessage('Simulasi berhasil dihapus!', 'warning');
+            // The global addSimulatedPositionBtn is no longer used for the last simulation
+            // as each row has its own "Buka Order" button.
+        }
+
+        // New function to toggle simulation opened status manually
+        function toggleSimulationOpened(index, isChecked) {
+            if (simulations[index]) {
+                simulations[index].isOpened = isChecked;
+                renderSimulationsTable(); // Re-render only simulation table for efficiency
+                showMessage(`Status simulasi #${index + 1} diperbarui!`, 'info');
+            }
+        }
+
+
+        /* ===== Export CSV ===== */
+        function exportCSV() {
+            if (positions.length === 0) {
+                showMessage('Tidak ada posisi untuk diekspor.', 'warning');
+                return;
+            }
+
+            let csv = 'Pair,Type,Lot,Entry,Current,SL,TP,RiskUSD,RewardUSD,RR,MarginUSD,PL\n';
+            const settings = getAccountSettings();
+
+            positions.forEach(pos => {
+                const metrics = calculateTradeMetrics(pos, settings);
+                // Handle N/A for SL/TP in CSV export
+                const slValue = pos.sl !== null ? pos.sl : 'N/A';
+                const tpValue = pos.tp !== null ? pos.tp : 'N/A';
+                const riskUSDValue = pos.sl !== null && pos.tp !== null ? metrics.riskUSD : 'N/A';
+                const rewardUSDValue = pos.sl !== null && pos.tp !== null ? metrics.rewardUSD : 'N/A';
+                const rrValue = pos.sl !== null && pos.tp !== null ? metrics.rr : 'N/A';
+
+                csv += `${pos.pair},${pos.type},${pos.lot},${pos.entry},${pos.current},${slValue},${tpValue},${riskUSDValue},${rewardUSDValue},${rrValue},${metrics.marginUSD},${metrics.pl}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'forex_positions.csv';
+            document.body.appendChild(link); // Required for Firefox
+            link.click();
+            document.body.removeChild(link); // Clean up
+            URL.revokeObjectURL(link.href);
+            showMessage('Data berhasil diekspor ke CSV!', 'success');
+        }
+
+        /* ===== Theme Toggle ===== */
+        const themeBtn = document.getElementById('theme-toggle');
+        function toggleTheme() {
+            const html = document.documentElement;
+            html.dataset.theme = html.dataset.theme === 'dark' ? 'light' : 'dark';
+        }
+        themeBtn.addEventListener('click', toggleTheme);
+
+        /* ===== Event Listeners ===== */
+        document.getElementById('add-position').addEventListener('click', addPosition);
+        document.getElementById('export-csv').addEventListener('click', exportCSV);
+        applyCurrentPriceBtn.addEventListener('click', updateAllPositionsCurrentPrice);
+
+        // Listen for changes in account settings to re-render everything
+        ['equity', 'leverage', 'riskPercent'].forEach(id => {
+            document.getElementById(id).addEventListener('input', renderAll);
+        });
+
+        // Listen for changes in add position form for suggested lot and overall re-render
+        ['pair', 'entry', 'sl', 'lot', 'current', 'tp', 'type'].forEach(id => {
+            document.getElementById(id).addEventListener('input', updateSuggestedLot);
+            document.getElementById(id).addEventListener('input', renderAll); // Re-render on any input change for dynamic P/L and current price
+        });
+
+        // Listen for changes in update current price inputs
+        updatePairSelect.addEventListener('change', () => {
+            const selectedPair = updatePairSelect.value;
+            const matchingPosition = positions.find(pos => pos.pair === selectedPair);
+            if (matchingPosition) {
+                updateCurrentPriceInput.value = matchingPosition.current;
+                updateCurrentPriceInput.step = `0.${'0'.repeat(getDecimalPlaces(selectedPair) - 1)}1`;
+            } else {
+                updateCurrentPriceInput.value = '';
+            }
+        });
+
+        // Edit Modal Event Listeners
+        closeEditModalBtn.addEventListener('click', () => editModal.classList.remove('show'));
+        cancelEditBtn.addEventListener('click', () => editModal.classList.remove('show'));
+        saveEditBtn.addEventListener('click', saveEditedPosition);
+
+        // Simulation Event Listeners
+        calculateSimulationBtn.addEventListener('click', calculateSimulation);
+        
+        // Update simulation display on input change (optional, can be too chatty)
+        ['sim-pair', 'sim-entry', 'sim-pip-movement', 'sim-order-type', 'sim-lot', 'sim-sl-pips', 'sim-tp-pips'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('input', () => {
+                    // Clear previous simulation results display
+                    simOrderPriceEl.textContent = '-';
+                    simSlPriceEl.textContent = '-';
+                    simTpPriceEl.textContent = '-';
+                    simRiskUsdEl.textContent = '-';
+                    simRewardUsdEl.textContent = '-';
+                    simRrRatioEl.textContent = '-';
+                });
+            }
+        });
+
+
+        // Close modal when clicking outside
+        window.addEventListener('click', (event) => {
+            if (event.target === editModal) {
+                editModal.classList.remove('show');
+            }
+        });
+
+
+        /* ===== Dummy Data (Opsional) ===== */
+        positions = [
+            { pair: 'GBP/USD', type: 'buy', lot: 0.5, entry: 1.23456, current: 1.24567, sl: 1.23000, tp: 1.26000 },
+            { pair: 'XAU/USD', type: 'sell', lot: 0.1, entry: 2350.50, current: 2345.70, sl: 2360.00, tp: 2325.00 },
+            { pair: 'XTI/USD', type: 'buy', lot: 0.2, entry: 78.30, current: 79.80, sl: null, tp: null } // Example with null SL/TP
+        ];
+
+        // Initial render on page load
+        document.addEventListener('DOMContentLoaded', renderAll);
+    </script>
+</body>
+</html>
